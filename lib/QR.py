@@ -5,18 +5,12 @@ def HouseholderQR(A,R,tol = (1e-10)):
   housedholder_vectors = np.zeros((dims[1]))
   R = A
   for j in range(dims[1]):
-  #for (sz j = 0; j < sz(dims[1]); j++) {
-    #// compute householder vector
-    #housedholder_vectors[j].resize(dims[0] - j);
+    # compute householder vector
     housedholder_vectors.append(np.zeros(dims[0] - j))
 
-    #column_mag = R.SubFrobeniusNorm({nm(j), nm(dims[0] - 1)}, {nm(j), nm(j)});
-    
     #// serial version
-    #/*T
     column_mag=0;
     for i in range(j,dims[0]):
-    #for(sz i=j;i<sz(dims[0]);i++)
         column_mag+=R[i,j]*R[i,j];
     
     column_mag=np.sqrt(column_mag)#;*/
@@ -27,8 +21,6 @@ def HouseholderQR(A,R,tol = (1e-10)):
     R[j, j] = -sign * column_mag;
 
     result = T(0);
- 		#pragma omp parallel for reduction(+: result)
-    #for(nm i=nm(j+1); i<nm(dims[0]);++i){
     for i in range(j+1,dims[0]):
       housedholder_vectors[j,i - j] = R[i, j];
       result += housedholder_vectors[j][i - j] * housedholder_vectors[j][i - j];
@@ -37,7 +29,6 @@ def HouseholderQR(A,R,tol = (1e-10)):
     D_mag += result
 
     D_mag = np.sqrt(D_mag);
-    # serial version
     for i in range(j+1,dims[0]):
     #for(sz i=j+1;i<sz(dims[0]);i++){
         housedholder_vectors[j][i-j]=R[i,j];
@@ -47,22 +38,17 @@ def HouseholderQR(A,R,tol = (1e-10)):
     D_mag=np.sqrt(D_mag);
     
     if D_mag > tol:
-      #pragma omp parallel for
       for i in range(j,dims[0]):
         housedholder_vectors[j,i - j] /= D_mag
       
 
       # apply projection to remaining columns of R
-      #pragma omp parallel for
       for k in range(j+1,dims[1]):
-      #for(nm k=nm(j+1);k<nm(dims[1]);++k){
         dot = (0);
         for i in range(j,dims[0]):
-        #for (sz i = j; i < sz(dims[0]); i++) {
           dot += R[i, k] * housedholder_vectors[j,i - j];
         
         for i in range(j,dims[0]):
-        #for (sz i = j; i < sz(dims[0]); i++) {
           R[i, k] -= (2) * dot * housedholder_vectors[j,i - j];
         
     return householder_vectors
@@ -76,16 +62,10 @@ def ConstructQFromHouseholderVectors(housedholder_vectors, m, l):
   '''
 
   n = len(housedholder_vectors);
-  #TGSLAssert(n > 0, "TGSL::ALGEBRA::ConstructQFromHouseholderVectors: housedholder_vectors not sized correctly.");
 
-  # set Q to identity initially
   Q = np.zeros(m, l);
-  for i in range(l):#(sz i = 0; i < l; i++)
+  for i in range(l):
     Q[i,i] = 1.0;
-  # multiply Q by the Qk (Householder projections)
-  #for (nm k = nm(n - 1); k >= 0; k--) {
-  #multiply each Qk times each column (j) of Q
-  #TGSLAssert(housedholder_vectors[k].size() <= m, "TGSL::ALGEBRA::ConstructQFromHouseholderVectors: housedholder_vectors not sized correctly.");
   for k in reversed(range(n)):
     i_start = m - housedholder_vectors[k].size();
     for j in range(l):
@@ -94,7 +74,6 @@ def ConstructQFromHouseholderVectors(housedholder_vectors, m, l):
         dot += Q[i, j] * housedholder_vectors[k,i - i_start]
 
       for i in range(i_start,m):
-      #for (sz i = i_start; i < m; i++) 
         Q[i, j] -= 2.0 * dot * housedholder_vectors[k,i - i_start]
 
   return Q
@@ -102,10 +81,8 @@ def ConstructQFromHouseholderVectors(housedholder_vectors, m, l):
 
 
 def HouseholderQRRec(A, R,tol = 1e-10):
-  #std::vector<TV> householder_vectors
   dims = A.Size();
   householder_vectors=HouseholderQR(A,R,tol);
-  #if(dims[0]==dims[1]) ConstructQFromHouseholderVectors(householder_vectors,dims[0],Q);
   Q = ConstructQFromHouseholderVectors(householder_vectors,dims[0],dims[1]);
 
   return Q
