@@ -201,7 +201,7 @@ if not args.skip_icpcg:
         y_inter = sparse.linalg.spsolve_triangular(L,x, lower=True) #Forward sub                                            
         return sparse.linalg.spsolve_triangular(L.transpose(),y_inter, lower=False) 
     
-    print("IncompleteCholeskyPCG test is running...")
+    print("IncompleteCholeskyPCG is running...")
     t0 = time.time()
     tol_icpcg = np.linalg.norm(b2)*tol
     x_sol, res_arr_icpcg = CG2.pcg_normal(np.zeros(b2.shape),b2,ic_precond,max_cg_iter,tol_icpcg,True)
