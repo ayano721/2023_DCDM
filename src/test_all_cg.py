@@ -40,7 +40,7 @@ parser.add_argument("-tol","--tolerance", type=float,
 parser.add_argument("--verbose_dgcm", type=bool,
                     help="prints residuals of DGCM algorithm for each iteration", default=False)
 parser.add_argument("--dataset_dir", type=str,
-                    help="path to the dataset", default="/data/oak/dataset_mlpcg")
+                    help="path to the dataset", default="./data/")
 parser.add_argument("--CUDA_VISIBLE_DEVICES", type=str,
                     help="Determines if DCDM uses GPU. Default DCDM only uses CPU.", default="")
 parser.add_argument("--num_vectors_deflated_pcg", type=int,
@@ -104,8 +104,8 @@ else:
 # the matrices ...
 # k defines which parameters and model to be used. Currently we present two model.
 # k = 64 uses model trained model
-#dataset_path = "/data/dataset_mlpcg/"
-#"/data/dataset_mlpcg" # change this to where you put the dataset folder
+#dataset_path = "/data/"
+# change this to where you put the dataset folder
 trained_model_name = dataset_path + "/trained_models/model_N"+str(N)+"_from"+str(k)+"_F"+str(float_type)+"/"
 
 #%% Load the matrix, vectors, and solver
@@ -185,7 +185,6 @@ if not args.skip_deflated_pcg:
 
 if not args.skip_icpcg:
     #Load L matrix, where A ~= L*L^T. L is precomputed 
-    #n = 64**3
     #A = sparse.load_npz(test_folder+"/A10.npz")
     # remove zero rows in the matrix, and corresponding indices in b
     b2 = b[A.getnnz(1)>0]
