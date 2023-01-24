@@ -193,7 +193,7 @@ if not args.skip_icpcg:
     A2 = A2[:,A.getnnz(0)>0]
     CG2 = cg.ConjugateGradientSparse(A2)
 
-    icpcg_test_folder = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+ example_name +"/L"+str(matrix_frame_number)+".bin"
+    icpcg_test_folder = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+ example_name +"/L"+str(matrix_frame_number)+".npz"
     # toA: update path accordingly
     L = sparse.load_npz(icpcg_test_folder)
     
