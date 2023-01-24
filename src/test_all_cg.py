@@ -183,7 +183,7 @@ if not args.skip_deflated_pcg:
     print("Deflated PCG took ",time_cg, " secs")
 
 
-if not args.test_icpcg:
+if not args.skip_icpcg:
     #Load L matrix, where A ~= L*L^T. L is precomputed 
     #n = 64**3
     #A = sparse.load_npz(test_folder+"/A10.npz")
