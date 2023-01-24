@@ -23,7 +23,7 @@ import helper_functions as hf
 
 #%% Get Arguments from parser
 parser = argparse.ArgumentParser()
-parser.add_argument("-N", "--resolution", type=int, choices=[64, 128, 256, 384],
+parser.add_argument("-N", "--resolution", type=int, choices=[64, 128, 256],
                     help="N or resolution of test", default = 256 )
 parser.add_argument("-k", "--trained_model_type", type=int, choices=[64, 128],
                     help="which model to test", default=128)
@@ -178,25 +178,29 @@ if not args.skip_deflated_pcg:
     time_cg = time.time() - t0
     print("Deflated PCG took ",time_cg, " secs")
 
-if not args.skip_icpcg:
-    print("icpcg is running...")    
-    t0=time.time()
-    L, D = CG.ldlt()
-    time_ldlt_creation = time.time() - t0
-    print("L and D computed in ", time_ldlt_creation, " seconds.")
-    l_name = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+example_name + "_matrix_L_fn"+str(matrix_frame_number)+".npz" 
-    d_name = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+example_name + "_matrix_D_fn"+str(matrix_frame_number)+".npz" 
-    sparse.save_npz(l_name, L)
-    sparse.save_npz(d_name, D)
-    #L = sparse.load_npz(l_name)
-    #D = sparse.load_npz(d_name)
+
+if not args.test_icpcg:
+    #Load L matrix, where A ~= L*L^T. L is precomputed 
+    #n = 64**3
+    #A = sparse.load_npz(test_folder+"/A10.npz")
+    # remove zero rows in the matrix, and corresponding indices in b
+    b2 = b[A.getnnz(1)>0]
+    A2 = A[A.getnnz(1)>0]
+    A2 = A2[:,A.getnnz(0)>0]
+    CG2 = cg.ConjugateGradientSparse(A2)
+
+    icpcg_test_folder = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+ example_name +"/L"+str(matrix_frame_number)+".bin"
+    # toA: update path accordingly
+    L = sparse.load_npz(icpcg_test_folder)
     
-    print("icpcg PCG is running...")
+    def ic_precond(x):    
+        y_inter = sparse.linalg.spsolve_triangular(L,x, lower=True) #Forward sub                                            
+        return sparse.linalg.spsolve_triangular(L.transpose(),y_inter, lower=False) 
+    
+    print("IncompleteCholeskyPCG test is running...")
     t0 = time.time()
-    x,res_arr_cg  = CG.ldlt_pcg(L, D, b, max_cg_iter, tol, verbose_icpcg)
-    time_ldlt_pcg = time.time() - t0
-    print("icpcg PCG took ", time_ldlt_pcg, " seconds.")
-    
-    #p_out = "/results/"+project+"/frame_"+str(frame)
-    #np.save(p_out, x_sol)
+    tol_icpcg = np.linalg.norm(b2)*tol
+    x_sol, res_arr_icpcg = CG2.pcg_normal(np.zeros(b2.shape),b2,ic_precond,max_cg_iter,tol_icpcg,True)
+    time_icpcg = time.time() - t0
+    print("IncompleteCholeskyPCG took ", time_icpcg, " secs")
 
