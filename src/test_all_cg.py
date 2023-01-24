@@ -62,6 +62,10 @@ N = args.resolution
 
 k = args.trained_model_type
 
+if N == 64:
+    print("For N=64 resolution there is only 64-trained model.")
+    k=64    
+
 float_type = args.float_type
 if float_type == 16:
     dtype_ = tf.float16
@@ -100,7 +104,7 @@ else:
 # the matrices ...
 # k defines which parameters and model to be used. Currently we present two model.
 # k = 64 uses model trained model
-dataset_path = "/data/dataset_mlpcg/"
+#dataset_path = "/data/dataset_mlpcg/"
 #"/data/dataset_mlpcg" # change this to where you put the dataset folder
 trained_model_name = dataset_path + "/trained_models/model_N"+str(N)+"_from"+str(k)+"_F"+str(float_type)+"/"
 
