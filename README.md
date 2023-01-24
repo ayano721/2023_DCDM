@@ -57,7 +57,7 @@ https://www.dropbox.com/sh/5abjudbcz4i1mk6/AAAhhJ1Y3ZNIl69GF7ZjeTpga?dl=0
             
 ```
 
-* test_matrices_and_vectors : they includes the rhs and system matrix A for examples for each dimention.(N64, N128, N256, N384)
+* test_matrices_and_vectors : they includes the rhs and system matrix A for examples for each dimention.(N64, N128, N256)
 * trained_models : they includes trained model for each resolution. For each resolution, we have 2 type of trained over resolution models at ```64``` and ```128```.
 At ```dim``` dimention and trained over ```K``` resolution model are named 'model_N[dim]_from[K]_FN32.
 
