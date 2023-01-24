@@ -30,6 +30,7 @@ epoch_num = int(sys.argv[1])
 epoch_each_iter = int(sys.argv[2])
 b_size = int(sys.argv[3])
 loading_number = int(sys.argv[4])
+loading_number = int(sys.argv[4])
 
 
 # you can modify gpu memory usage editing here
@@ -49,9 +50,14 @@ if gpus:
     # Virtual devices must be set before GPUs have been initialized
     print(e)
 
+N = 64
 
-name_sparse_matrix = project_folder_general+"/matrixA.bin"
-A_sparse_scipy = hf.readA_sparse(dim, name_sparse_matrix,'f')
+if N == 64:
+    A_file_name = args.dataset_dir + "/original_matA/A_origN"+str(N)+".bin"  
+elif N == 128:
+    A_file_name = args.dataset_dir + "/original_matA/A_oriN"+str(N)+".bin"  
+A_sparse_scipy = hf.readA_sparse(N, A_file_name,'f')
+
 
 CG = cg.ConjugateGradientSparse(A_sparse_scipy)
 
