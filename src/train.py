@@ -10,32 +10,71 @@ import scipy.sparse as sparse
 import time
 #import matplotlib.pyplot as plt
 
-project_name = "3D_N64"
-project_folder_subname = os.path.basename(os.getcwd())
-print("project_folder_subname = ", project_folder_subname)
-project_folder_general = "../dataset/train/forTraining/3D_N64"
-
 sys.path.insert(1, '../lib/')
 import conjugate_gradient as cg
 import pressure_laplacian as pl
 import helper_functions as hf
 
-dim = 64
-dim2 = dim**3
+import argparse
+
+
+#%% Get Arguments from parser
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-N", "--resolution", type=int, choices=[64, 128],
+                    help="N or resolution of test", default = 64 )
+
+parser.add_argument("--total_number_of_epochs", type=int,
+                    help="Total number of epochs for training", default=1000)
+
+parser.add_argument("--epoch_each_number", type=int,
+                    help="epoch number of", default=1)
+
+parser.add_argument("--batch_size", type=int,
+                    help="--batch_size.", default=10)
+
+parser.add_argument("--loading_number", type=int,
+                    help="loading number of each iteration", default=100)
+
+parser.add_argument("--gpu_usage", type=int,
+                    help="gpu usage, in terms of GB.", default=3)
+
+parser.add_argument("--gpu_idx", type=str,
+                    help="which gpu to use.", default='1')
+
+parser.add_argument("--data_dir", type=str,
+                    help="path to the folder containing dataset vectors", default='../data/')
+
+
+
+args = parser.parse_args()
+
+N = args.resolution
+epoch_num = args.total_number_of_epochs
+epoch_each_iter = args.epoch_each_number
+b_size = args.batch_size
+loading_number = args.loading_number
+gpu_usage = args.gpu_usage
+which_gpu = args.gpu_idx
+
+
+
+project_name = "3D_N"+str(N)
+project_folder_subname = os.path.basename(os.getcwd())
+print("project_folder_subname = ", project_folder_subname)
+
+project_folder_general = "../data/training/3D_N"+str(N)
+
+#training_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_training_loss.npy"
+
+
+
+
+dim2 = N**3
 lr = 1.0e-4
 
 
-# command variables
-epoch_num = int(sys.argv[1])
-epoch_each_iter = int(sys.argv[2])
-b_size = int(sys.argv[3])
-loading_number = int(sys.argv[4])
-
-
 # you can modify gpu memory usage editing here
-
-gpu_usage = int(1024*np.double(sys.argv[5]))
-which_gpu = sys.argv[6]
 
 os.environ["CUDA_VISIBLE_DEVICES"]=which_gpu
 gpus = tf.config.list_physical_devices('GPU')
@@ -50,8 +89,13 @@ if gpus:
     print(e)
 
 
-name_sparse_matrix = project_folder_general+"/matrixA.bin"
-A_sparse_scipy = hf.readA_sparse(dim, name_sparse_matrix,'f')
+if N == 64:
+    A_file_name = args.data_dir + "/original_matA/A_origN"+str(N)+".bin"  
+elif N == 128:
+    A_file_name = args.data_dir + "/original_matA/A_oriN"+str(N)+".bin"  
+
+A_sparse_scipy = hf.readA_sparse(N, A_file_name,'f')
+
 
 CG = cg.ConjugateGradientSparse(A_sparse_scipy)
 
@@ -70,6 +114,7 @@ def custom_loss_function_cnn_1d_fast(y_true,y_pred):
     return err/b_size_
 
 #%% Training model 
+dim = N
 fil_num=16
 input_rhs = keras.Input(shape=(dim, dim, dim, 1))
 first_layer = layers.Conv3D(fil_num, (3, 3, 3), activation='linear', padding='same')(input_rhs)
@@ -117,7 +162,14 @@ validation_loss_name = project_folder_general+project_folder_subname+"/"+project
 training_loss = []
 validation_loss = []
 
-d_name = "b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64"
+
+# if you want to use your own dataset, you can change here.
+if N == 64:
+    #foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+elif N == 128:
+    #foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
 
 #%%
 total_data_points = 20000
