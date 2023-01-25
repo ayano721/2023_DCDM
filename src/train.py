@@ -17,14 +17,11 @@ import helper_functions as hf
 
 import argparse
 
-#project_name = "3D_N64"
-#project_folder_subname = os.path.basename(os.getcwd())
-#print("project_folder_subname = ", project_folder_subname)
 
 #%% Get Arguments from parser
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-N", "--resolution", type=int, choices=[64, 128, 256],
+parser.add_argument("-N", "--resolution", type=int, choices=[64, 128],
                     help="N or resolution of test", default = 64 )
 
 parser.add_argument("--total_number_of_epochs", type=int,
@@ -61,7 +58,15 @@ gpu_usage = args.gpu_usage
 which_gpu = args.gpu_idx
 
 
-project_folder_general = "../dataset/train/forTraining/3D_N64"
+
+project_name = "3D_N"+str(N)
+project_folder_subname = os.path.basename(os.getcwd())
+print("project_folder_subname = ", project_folder_subname)
+
+project_folder_general = "../data/training/3D_N"+str(N)
+
+#training_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_training_loss.npy"
+
 
 
 
@@ -160,9 +165,11 @@ validation_loss = []
 
 # if you want to use your own dataset, you can change here.
 if N == 64:
-    foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64"
+    foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    #foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
 elif N == 128:
-    foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128"
+    foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    #foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
 
 #%%
 total_data_points = 20000
