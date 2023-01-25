@@ -29,7 +29,7 @@ parser.add_argument("-k", "--trained_model_type", type=int, choices=[64, 128],
                     help="which model to test", default=128)
 parser.add_argument("-f", "--float_type", type=int, choices=[16, 32],
                     help="model parameters' float type", default=32)
-parser.add_argument("-ex", "--example_type", type=str, choices=["rotating_fluid", "smoke_passing_bunny"],
+parser.add_argument("-ex", "--example_type", type=str, choices=["smoke_plume", "smoke_passing_bunny"],
                     help="example type", default="smoke_passing_bunny")
 parser.add_argument("-fn", "--frame_number", type=int,
                     help="example type", default=10)
@@ -91,7 +91,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]= args.CUDA_VISIBLE_DEVICES
 
 #%% 
 # if matrix does not change in the example, use the matrix for the first frame.  
-if example_name in ["rotating_fluid", "smoke_passing_bunny"]:
+if example_name in ["smoke_plume", "smoke_passing_bunny"]:
     matrix_frame_number = 1
 else:
     matrix_frame_number = frame_number
