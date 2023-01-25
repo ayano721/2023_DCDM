@@ -165,11 +165,11 @@ validation_loss = []
 
 # if you want to use your own dataset, you can change here.
 if N == 64:
-    foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
-    #foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    #foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
 elif N == 128:
-    foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
-    #foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    #foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
 
 #%%
 total_data_points = 20000
