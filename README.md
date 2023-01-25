@@ -1,29 +1,24 @@
-# MLPCG
+# DCDM
 
 
-This repository is based on the paper,[Our paper].
-We accelerate fluid simulations by embedding a neural network in an existing solver for pressure, replacing an expensive pressure projection linked to a Poisson equation on the pressure, which is usually solved with iterative methods (CG or Jacobi methods). 
+This repository is based on the paper [under review].
+We accelerate fluid simulations by embedding a neural network in an existing solver for pressure, replacing an expensive pressure projection linked to a Poisson equation on a computational fluid grid that is usually solved with iterative methods (CG or Jacobi methods). 
 We implemented our code with TensorFlow (keras) for training parts.
-We also have C++/CUDA implementation version.
-
 
 ## Requirements
 * Python 3.8
 * keras 2.8.0
 * tensorflow 2.3.0
 
-We are using virtual environment using conda.
-
-
-
+We are using virtual environments using conda.
 
 ## Training
 ### Dataset
-We placed dataset here [place of the folder].Here, we generated this dataset by calculating Ritz vector, so we also show our code here. [GeneratingData.py]
+We placed dataset here [place of the folder]. Here, we generated this dataset by calculating Ritz vectors, so we also show our code here. [GeneratingData.py]
 
 
 ### Training model
-We placed already trained model here ```/trainedmodel```. Here, we also placed the training code.
+We placed pre-trained models here: ```/trainedmodel```. We also placed the training code here.
 
 ```
 cd ThisDir/src
