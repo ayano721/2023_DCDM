@@ -193,15 +193,14 @@ if not args.skip_icpcg:
     CG2 = cg.ConjugateGradientSparse(A2)
 
     icpcg_test_folder = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+ example_name +"/L"+str(matrix_frame_number)+".npz"
-    # toA: update path accordingly
     L = sparse.load_npz(icpcg_test_folder)
-    L = L[L.getnnz(1)>0]
-    L = L[:,L.getnnz(0)>0]
-    sparse.save_npz(icpcg_test_folder,L)
+    #L = L[L.getnnz(1)>0]
+    #L = L[:,L.getnnz(0)>0]
+    #sparse.save_npz(icpcg_test_folder,L)
     
     def ic_precond(x):    
         y_inter = sparse.linalg.spsolve_triangular(L,x, lower=True) #Forward sub                                            
-        return sparse.linalg.spsolve_triangular(L.transpose(),y_inter, lower=False) 
+        return sparse.linalg.spsolve_triangular(L.transpose(),y_inter, lower=False) #backward sub
     
     print("IncompleteCholeskyPCG is running...")
     t0 = time.time()
