@@ -131,10 +131,6 @@ A_file_name = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+example_n
 A = hf.readA_sparse(N, A_file_name,'f')
 b = get_vector_from_source(b_file_name)
 CG = cg.ConjugateGradientSparse(A)
-print("b.size = ",b.shape)
-b_file_name = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+example_name+"/div_v_star_"+str(matrix_frame_number)+".bin" 
-b = get_vector_from_source(b_file_name)
-print("b.size = ",b.shape)
 
 #%%
 # parameters for CG
