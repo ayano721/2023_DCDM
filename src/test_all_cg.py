@@ -111,8 +111,6 @@ trained_model_name = dataset_path + "/trained_models/model_N"+str(N)+"_from"+str
 #%% Load the matrix, vectors, and solver
 
 #Decide which example to run for: SmokePlume, ...
-#TODO: Add pictures to show different examples: SmokePlume, rotating_fluid
-# old names: rotating_fluid -> output3d128_new_tgsl_rotating_fluid
 
 #%% Getting RHS for the Testing
 d_type='double'
@@ -136,9 +134,6 @@ CG = cg.ConjugateGradientSparse(A)
 # parameters for CG
 normalize_ = False 
 
-#gpu_usage = 1024*48.0#int(1024*np.double(sys.argv[5]))
-#which_gpu = 0#sys.argv[6]
-#gpus = tf.config.list_physical_devices('GPU')
 
 #%% Testing
 if not args.skip_dcdm:
@@ -181,11 +176,8 @@ if not args.skip_deflated_pcg:
     time_cg = time.time() - t0
     print("Deflated PCG took ",time_cg, " secs")
 
-
 if not args.skip_icpcg:
     #Load L matrix, where A ~= L*L^T. L is precomputed 
-    #A = sparse.load_npz(test_folder+"/A10.npz")
-    # remove zero rows in the matrix, and corresponding indices in b
     b2 = b[A.getnnz(1)>0]
     A2 = A[A.getnnz(1)>0]
     A2 = A2[:,A.getnnz(0)>0]
@@ -193,9 +185,6 @@ if not args.skip_icpcg:
 
     icpcg_test_folder = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+ example_name +"/L"+str(matrix_frame_number)+".npz"
     L = sparse.load_npz(icpcg_test_folder)
-    #L = L[L.getnnz(1)>0]
-    #L = L[:,L.getnnz(0)>0]
-    #sparse.save_npz(icpcg_test_folder,L)
     
     def ic_precond(x):    
         y_inter = sparse.linalg.spsolve_triangular(L,x, lower=True) #Forward sub                                            
