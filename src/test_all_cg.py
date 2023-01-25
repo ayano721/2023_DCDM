@@ -161,12 +161,12 @@ if not args.skip_dcdm:
     #Dummy Calling
     model_predict(b)
     
-    print("DGCM is running...")
+    print("DCDM is running...")
     t0=time.time()                                  
     max_dcdm_iter = 100                                                                                                                                      
     x_sol, res_arr= CG.dcdm(b, np.zeros(b.shape), model_predict, max_dcdm_iter, tol, False ,verbose_dgcm)
     time_cg_ml = time.time() - t0
-    print("DGCM took ", time_cg_ml," secs.")
+    print("DCDM took ", time_cg_ml," secs.")
 
 if not args.skip_cg:
     print("CG is running...")
@@ -195,6 +195,9 @@ if not args.skip_icpcg:
     icpcg_test_folder = dataset_path + "/test_matrices_and_vectors/N"+str(N)+"/"+ example_name +"/L"+str(matrix_frame_number)+".npz"
     # toA: update path accordingly
     L = sparse.load_npz(icpcg_test_folder)
+    L = L[L.getnnz(1)>0]
+    L = L[:,L.getnnz(0)>0]
+    sparse.save_npz(icpcg_test_folder,L)
     
     def ic_precond(x):    
         y_inter = sparse.linalg.spsolve_triangular(L,x, lower=True) #Forward sub                                            
