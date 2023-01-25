@@ -43,7 +43,7 @@ parser.add_argument("--gpu_usage", type=int,
                     help="gpu usage, in terms of GB.", default=3)
 
 parser.add_argument("--gpu_idx", type=str,
-                    help="which gpu to use.", default='0')
+                    help="which gpu to use.", default='1')
 
 parser.add_argument("--data_dir", type=str,
                     help="path to the folder containing dataset vectors", default='../data/')
@@ -69,16 +69,7 @@ dim2 = N**3
 lr = 1.0e-4
 
 
-# command variables
-#epoch_num = int(sys.argv[1])
-#epoch_each_iter = int(sys.argv[2])
-#b_size = int(sys.argv[3])
-#loading_number = int(sys.argv[4])
-#gpu_usage = int(1024*np.double(sys.argv[5]))
-#which_gpu = sys.argv[6]
-
 # you can modify gpu memory usage editing here
-
 
 os.environ["CUDA_VISIBLE_DEVICES"]=which_gpu
 gpus = tf.config.list_physical_devices('GPU')
@@ -118,6 +109,7 @@ def custom_loss_function_cnn_1d_fast(y_true,y_pred):
     return err/b_size_
 
 #%% Training model 
+dim = N
 fil_num=16
 input_rhs = keras.Input(shape=(dim, dim, dim, 1))
 first_layer = layers.Conv3D(fil_num, (3, 3, 3), activation='linear', padding='same')(input_rhs)
