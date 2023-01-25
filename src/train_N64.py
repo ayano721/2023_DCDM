@@ -45,8 +45,10 @@ parser.add_argument("--gpu_usage", type=int,
 parser.add_argument("--gpu_idx", type=str,
                     help="which gpu to use.", default='0')
 
-parser.add_argument("--dataset_dir", type=str,
+parser.add_argument("--data_dir", type=str,
                     help="path to the folder containing dataset vectors", default='../data/')
+
+
 
 args = parser.parse_args()
 
@@ -92,9 +94,10 @@ if gpus:
 
 
 if N == 64:
-    A_file_name = args.dataset_dir + "/original_matA/A_origN"+str(N)+".bin"  
+    A_file_name = args.data_dir + "/original_matA/A_origN"+str(N)+".bin"  
 elif N == 128:
-    A_file_name = args.dataset_dir + "/original_matA/A_oriN"+str(N)+".bin"  
+    A_file_name = args.data_dir + "/original_matA/A_oriN"+str(N)+".bin"  
+
 A_sparse_scipy = hf.readA_sparse(N, A_file_name,'f')
 
 
@@ -162,7 +165,12 @@ validation_loss_name = project_folder_general+project_folder_subname+"/"+project
 training_loss = []
 validation_loss = []
 
-d_name = "b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64"
+
+# if you want to use your own dataset, you can change here.
+if N == 64:
+    foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64"
+elif N == 128:
+    foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128"
 
 #%%
 total_data_points = 20000
