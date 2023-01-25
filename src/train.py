@@ -63,19 +63,14 @@ project_name = "3D_N"+str(N)
 project_folder_subname = os.path.basename(os.getcwd())
 print("project_folder_subname = ", project_folder_subname)
 
-project_folder_general = "../data/training/3D_N"+str(N)
+project_folder_general = "../training/3D_N"+str(N)+"/"
 
 #training_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_training_loss.npy"
-
-
-
 
 dim2 = N**3
 lr = 1.0e-4
 
-
 # you can modify gpu memory usage editing here
-
 os.environ["CUDA_VISIBLE_DEVICES"]=which_gpu
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
@@ -165,14 +160,13 @@ validation_loss = []
 
 # if you want to use your own dataset, you can change here.
 if N == 64:
-    #foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
-    foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    #foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
 elif N == 128:
-    #foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
-    foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    #foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
 
-#%%
-total_data_points = 20000
+total_data_points = 10#20000
 for_loading_number = round(total_data_points/loading_number)
 b_rhs = np.zeros([loading_number,dim2])
 
@@ -186,8 +180,6 @@ for i in range(1,epoch_num):
     for ii in range(for_loading_number):
         print("Sub_training at ",ii,"/",for_loading_number," at training ",i)
 
-        
-        #d_name = "b_rhs_10000_eigvector_equidistributed_random_N"
         # Loasing the data
         for j in range(loading_number):
             with open(foldername+str(perm[loading_number*ii+j])+'.npy', 'rb') as f:  
@@ -215,8 +207,9 @@ for i in range(1,epoch_num):
     training_loss = training_loss + [sum(validation_loss_inner)/for_loading_number]
     validation_loss = validation_loss + [sum(validation_loss_inner)/for_loading_number]
     
-    os.system("mkdir ./saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i))
-    os.system("touch ./saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i)+"/model.json")
+    #os.system("mkdir -p "+project_folder_general+project_folder_subname+ "/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i))
+    os.makedirs(name = project_folder_general+project_folder_subname+ "/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i))
+    os.system("touch "+project_folder_general+project_folder_subname+ "/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i)+"/model.json")
     model_json = model.to_json()
     model_name_json = project_folder_general+project_folder_subname+"/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i)+"/"
     with open(model_name_json+ "model.json", "w") as json_file:
