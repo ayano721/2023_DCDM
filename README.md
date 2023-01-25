@@ -35,7 +35,7 @@ The test data is under ```dataset_mlpcg/test_matrices_and_vectors ``` folder.The
 
 
 ## All datasets
-From here, you can donwload the ```trained model```, ```testing matrix``` and ```A^(0,0) matrix data for generating datasets for training model```.
+From here, you can download the ```trained model```, ```testing matrix``` and ```A^(0,0) matrix data for generating datasets for training model```.
 
 https://www.dropbox.com/s/1t989hxfobg4i89/DCDM2023.zip?dl=0
 
@@ -45,29 +45,29 @@ https://www.dropbox.com/s/1t989hxfobg4i89/DCDM2023.zip?dl=0
 .
 └── HomeDir(cloned Dir)
     ├── src
-    └── dataset_mlpcg (please donwload from above link, you can place anywhere and just set the pass)
+    └── dataset_mlpcg (please download from above link, you can place anywhere and just set the path)
         ├── test_matrices_and_vectors  
         └── trained_models
         └── original_matA
             
 ```
 
-* test_matrices_and_vectors : they includes the rhs and system matrix A for examples for each dimension.(N64, N128, N256)
-* trained_models : they includes trained model for each resolution. For each resolution, we have 2 type of trained over resolution models at ```64``` and ```128```.
+* test_matrices_and_vectors : they include the rhs and system matrix A for examples for each dimension (N = 64, 128, 256).
+* trained_models : they include trained models for each resolution. For each resolution, we have 2 types of trained models over resolution ```64``` and ```128```.
 At ```dim``` dimension and trained over ```K``` resolution model are named 'model_N[dim]_from[K]_FN32.
 
 ## Installation
 
-1. Extract  this folder, download the required dataset from above link and place it.
+1. Extract this folder, download the required dataset from above link and place it appropriately.
 
-2. Create and activate a conda environement
+2. Create and activate a conda environement:
 ```
 conda create --name venvname[name of vertual env] python=3.8
 conda activate venvname
 ```
 
 3. Install keras, tensorflow with cuda_11.7 and the rest of necessary packages from the requirements file.
-To install the rest of the packages running these command.
+To install the rest of the packages, run:
 ```
 pip install -r requirements.txt
 ```
