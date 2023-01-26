@@ -15,26 +15,18 @@ We are using virtual environments using conda.
 
 ## Setting Up Environment for Running DCDM
 
-1. Extract this folder, download the required dataset from above link and place it appropriately.
-
-2. Create and activate a conda environement:
+1. Create and activate a conda environement:
 ```
 conda create --name venvname[name of vertual env] python=3.8
 conda activate venvname
 ```
 
-<!-- 3. Install keras, tensorflow with cuda_11.7 and the rest of necessary packages from the requirements file.
-To install the rest of the packages, run:
-```
-pip install -r requirements.txt
-``` -->
-
-3. Install tensorflow. Conda should install keras, numpy, and scipy automatically. If not, install them using conda.
+2. Install tensorflow. Conda should install keras, numpy, and scipy automatically. If not, install them using conda.
 ```
 conda install tensorflow
 ```
 
-4. Download the data file **[here](https://www.dropbox.com/s/dlhvuyub87i9cyl/icml2023data.tar.gz?dl=0)** to the ```project source directory``` and extract all data files.
+3. Download the data file **[here](https://www.dropbox.com/s/dlhvuyub87i9cyl/icml2023data.tar.gz?dl=0)** to the ```project source directory``` and extract all data files.
 ```
 tar -zxvf icml2023data.tar.gz
 cd icml2023data
