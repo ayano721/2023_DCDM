@@ -6,17 +6,14 @@ import tensorflow as tf
 import struct
 import scipy.sparse as sparse
 
-
 def AQ(A,mult_precond):
     M = np.zeros(A.shape)
     for i in range(A.shape[0]):
         M[:,i] = mult_precond(A[i])
     return M
 
-
 def off_diagonal_sum(A):
     return sum(sum(A)) - sum(A.diagonal())
-
 
 def get_vec(file_rhs,normalize = False, d_type='double'):
     if(os.path.exists(file_rhs)):
@@ -39,8 +36,6 @@ def get_frame_from_source(n,data_folder_name,normalize = True, d_type='double'):
     else:
         print("No file for n = "+str(n)+" in data folder "+data_folder_name)
 
-
-
 def readA(dim,filenameA):
     dim2 = dim*dim;
     mat_A = np.zeros((dim2,dim2));
@@ -58,7 +53,6 @@ def readA(dim,filenameA):
                 elejk = struct.unpack('d',bk);
                 mat_A[j][k] = elejk[0];
     return mat_A
-
 
 def readA_sparse(dim, filenameA, dtype = 'd'):                                                                                                                                                              
     dim2 = dim**3
@@ -117,7 +111,6 @@ def readA_sparse(dim, filenameA, dtype = 'd'):
     #print(outerIdxPtr[num_rows-1])
     return sparse.csr_matrix((data, (rows, cols)),[dim2,dim2])
 
-
 def readA_sparse_from_bin(dim, filenameA, dtype = 'd'):
     dim2 = dim**3
     cols = []
@@ -175,11 +168,6 @@ def readA_sparse_from_bin(dim, filenameA, dtype = 'd'):
     #print(outerIdxPtr[num_rows-1])
     return sparse.csr_matrix((data, (rows, cols)),[dim2,dim2])
      
-
-
-
-
-
 def ReadEigenSpMat(dim, filenameA):
     cols = []
     outerIdxPtr = []
@@ -266,7 +254,6 @@ def ReadEigenSpMat(dim, filenameA):
     for ii in range(num_rows):
         rows = rows + [ii]*(outerIdxPtr[ii+1] - outerIdxPtr[ii])
     return sparse.csr_matrix((data, (rows, cols)),[dim,dim])
-
 
 def load_model_from_source(model_file_source):
     json_file = open(model_file_source + 'model.json', 'r')
