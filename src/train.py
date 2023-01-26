@@ -137,16 +137,6 @@ model.optimizer.lr = lr;
 model.summary()
 
 
-rand_vec_x = np.random.normal(0,1, [dim2])
-b_rand = CG.multiply_A_sparse(rand_vec_x)
-
-data_folder_name = project_folder_general+"data/output3d64_smoke/"
-b_smoke = hf.get_frame_from_source(10, data_folder_name)
-
-data_folder_name = project_folder_general+"data/output3d128_smoke_sigma/"
-b_rotate = hf.get_frame_from_source(10, data_folder_name)
-
-
 training_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_training_loss.npy"
 validation_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_validation_loss.npy"
 training_loss = []
@@ -219,12 +209,6 @@ for i in range(1,epoch_num):
     max_it=30
     tol=1.0e-12
 
-    print("Rotating Fluid Test")
-    x_sol, res_arr_ml_generated_cg = CG.dcdm(b_rotate, np.zeros(b_rotate.shape), model_predict, max_it,tol, True)    
-    print("Smoke Plume Test")
-    x_sol, res_arr_ml_generated_cg = CG.dcdm(b_smoke, np.zeros(b.shape), model_predict, max_it,tol, True)
-    print("RandomRHSi Test")
-    x_sol, res_arr_ml_generated_cg = CG.dcdm(b_rand, np.zeros(b_rand.shape), model_predict, max_it,tol, True)
 
 
 
