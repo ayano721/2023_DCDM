@@ -204,11 +204,3 @@ for i in range(1,epoch_num):
         np.save(f, np.array(validation_loss))
     print(training_loss)
     print(validation_loss)
-    
-    model_predict = lambda r: model(tf.convert_to_tensor(r.reshape([1,dim,dim,dim]),dtype=tf.float32),training=False).numpy()[0,:,:].reshape([dim2]) #first_residual
-    max_it=30
-    tol=1.0e-12
-
-
-
-
