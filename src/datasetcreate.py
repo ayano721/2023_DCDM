@@ -9,11 +9,8 @@ import scipy.sparse as sparse
 from numpy.linalg import norm
 import time
 import argparse
-
 import conjugate_gradient as cg
 import helper_functions as hf
-
-#os.environ["CUDA_VISIBLE_DEVICES"]= '' #not necessary
 
 #%% Get Arguments from parser
 parser = argparse.ArgumentParser()
@@ -26,7 +23,7 @@ parser.add_argument("--sample_size", type=int,
 parser.add_argument("--theta", type=int,
                     help="see paper for the definition.", default=500)
 parser.add_argument("--small_matmul_size", type=int,
-                    help="Number of vectors.", default=200)
+                    help="Number of vectors in efficient matrix multiplication", default=200)
 parser.add_argument("--dataset_dir", type=str,
                     help="path to the folder containing training matrix")
 parser.add_argument("--output_dir", type=str,
@@ -56,7 +53,6 @@ rand_vec = A.dot(rand_vec_x)
 #%% Creating Lanczos Vectors:
 print("Lanczos Iteration is running...")
 W, diagonal, sub_diagonal = CG.lanczos_iteration_with_normalization_correction(rand_vec, num_ritz_vectors) #this can be loaded directly from c++ output
-#W, diagonal, sub_diagonal = CG.lanczos_iteration(rand_vec, num_ritz_vectors, 1.0e-12) //Without ortogonalization. This is OK for 2D case.
 print("Lanczos Iteration finished.")
 
 #%% Create the tridiagonal matrix from diagonal and subdiagonal entries
@@ -71,13 +67,12 @@ tri_diag[num_ritz_vectors-1,num_ritz_vectors-1]=diagonal[num_ritz_vectors-1]
 tri_diag[num_ritz_vectors-1,num_ritz_vectors-2]=sub_diagonal[num_ritz_vectors-2]
 
 
-#%% Calculating eigenvectors of the tridiagonal matrix
+#%% 
 print("Calculating eigenvectors of the tridiagonal matrix")
 ritz_vals, Q0 = np.linalg.eigh(tri_diag)
 ritz_vals = np.real(ritz_vals)
 Q0 = np.real(Q0)
 ritz_vectors = np.matmul(W.transpose(),Q0).transpose()
-
 
 #%% For fast matrix multiply
 from numba import njit, prange
@@ -90,7 +85,6 @@ def mat_mult(A, B):
             for j in range(B.shape[1]):
                 res[i,j] += A[i,k] * B[k,j]
     return res
-
 
 for_outside = int(args.sample_size/small_matmul_size)
 b_rhs_temp = np.zeros([small_matmul_size,N**3])
@@ -107,9 +101,7 @@ for it in range(0,for_outside):
     coef_matrix[0:cut_idx] = 9*np.random.normal(0,1, [cut_idx,sample_size])
     l_b = small_matmul_size*it
     r_b = small_matmul_size*(it+1)
-    #b_rhs[l_b:r_b] = np.matmul(ritz_vectors[0:num_ritz_vectors-num_zero_ritz_vals].transpose(),coef_matrix).transpose()
     b_rhs_temp = mat_mult(ritz_vectors[num_zero_ritz_vals:num_ritz_vectors].transpose(),coef_matrix).transpose()
-
     for i in range(l_b,r_b):
         b_rhs_temp[i-l_b]=b_rhs_temp[i-l_b]/np.linalg.norm(b_rhs_temp[i-l_b])
         with open(args.output_dir+'/b_'+str(i)+'.npy', 'wb') as f:
