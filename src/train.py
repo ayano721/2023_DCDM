@@ -43,7 +43,7 @@ parser.add_argument("--gpu_idx", type=str,
                     help="which gpu to use.", default='1')
 
 parser.add_argument("--data_dir", type=str,
-                    help="path to the folder containing dataset vectors", default='../data/')
+                    help="path to the folder containing dataset vectors", default='../icml2023data/')
 
 
 
@@ -160,11 +160,9 @@ validation_loss = []
 
 # if you want to use your own dataset, you can change here.
 if N == 64:
-    foldername = "/data/oak/ICML2023_dataset/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
-    #foldername = "../data/datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
+    foldername = "../datasets/N64/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N64/"
 elif N == 128:
-    foldername = "/data/oak/ICML2023_dataset/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
-    #foldername = "../data/datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
+    foldername = "../datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
 
 total_data_points = 10#20000
 for_loading_number = round(total_data_points/loading_number)
