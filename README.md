@@ -83,5 +83,5 @@ tar -zxvf datasets.tar.gz
 Pre-trained models can be found `icml2023data/trained_models`. If the you want to generate dataset by yourself, you can run the following commands:
 ```
 cd src/
-python train.py -N [dimention] --total_number_of_epochs [total epoch number] --epoch_each_number [epoch number for saved model] --batch_size [batch size] --loading_number [loading data size for once] --gpu_usage [gpu usage memory 1024*int]  --data_dir [data_direction]
+python train.py -N <dimention> --total_number_of_epochs <total epoch number> --epoch_each_number <epoch number for saved model> --batch_size <batch size> --loading_number <loading data size for once> --gpu_usage <gpu usage memory 1024*int> --data_dir <data path to the icml2023data>
 ```
