@@ -42,14 +42,6 @@ class ConjugateGradientSparse:
     def dot(self,x,y):
         return np.dot(x,y)
     
-    def shift_to_span_A(self,r):
-        r0 = r.copy()
-        zero_rows = self.get_zero_rows()
-        nonzero_rows = self.get_nonzero_rows()
-        r0[zero_rows] = 0.0
-        sum_r = sum(r0)
-        r0[nonzero_rows] = r0[nonzero_rows] - sum_r/len(nonzero_rows)
-        return r0
     
     def multi_norm(self,xs):
         norms = np.zeros(xs.shape[0])
@@ -463,9 +455,6 @@ class ConjugateGradientSparse:
         invariant_subspace = False
         it = 1
         while ((it<max_it-1) and (not invariant_subspace)):
-            #if it%50==0:
-            #    print("Lanczos it = ",it)
-            #Q[it+1] = np.matmul(self.A, Q[it])
             Q[it+1] = self.multiply_A_sparse(Q[it])
             diagonal[it] = np.dot(Q[it],Q[it+1])
             Q[it+1] = Q[it+1] - diagonal[it]*Q[it]-sub_diagonal[it-1]*Q[it-1]
@@ -515,9 +504,6 @@ class ConjugateGradientSparse:
         invariant_subspace = False
         it = 1
         while ((it<max_it-1) and (not invariant_subspace)):
-            #if it%50==0:
-            #    print("Lanczos it = ",it)
-            #Q[it+1] = np.matmul(self.A, Q[it])
             Q[it+1] = self.multiply_A_sparse(Q[it])
             diagonal[it] = np.dot(Q[it],Q[it+1])            
             v = Q[it+1] - diagonal[it]*Q[it]-sub_diagonal[it-1]*Q[it-1]
@@ -627,8 +613,8 @@ class ConjugateGradientSparse:
         invariant_subspace = False
         it = 1
         while ((it<max_it-1) and (not invariant_subspace)):
-            if it%50==0:
-                print("Lanczoz it = ",it)
+            if it%100==0:
+                print("Lanczoz iteration at = ",it)
             #Q[it+1] = np.matmul(self.A, Q[it])
             Q[it+1] = self.multiply_A_sparse(Q[it])
             diagonal[it] = np.dot(Q[it],Q[it+1])            
@@ -652,14 +638,6 @@ class ConjugateGradientSparse:
         
         return Q, diagonal, sub_diagonal
 
-   
-   #def mult_appro_inv(self,x,Q,lambda_):
-   #     y = np.copy(x)    
-   #     for i in range(Q.shape[0]):
-   #         qTx = np.dot(Q[i],x)
-   #         y = y + qTx*(1/lambda_[i] - 1.0)*Q[i]
-   #     return y
-
 
     def deflated_pcg_n(self, b,max_it = 100,tol = 1.0e-15,num_vectors = 16, verbose = False):
         res_arr = [] 
@@ -672,18 +650,7 @@ class ConjugateGradientSparse:
         A_c_inv = ( inv(diag_lam)).tocsr()
         Q_sp = csr_matrix(Q,dtype=np.float32)
         gc.collect()
-        print("Qsp")
-        print(type(Q_sp),Q_sp.shape,(Q_sp.dtype))
-        print("Qsp_Ac_inv *  Qsp T")
         zAcinvz = csr_matrix(Q_sp.transpose()*(A_c_inv)*(Q_sp))#.tocsr() 
-        #zAcinvz = (zAcinv*(Q_sp))#.tocsr() 
-        print("Qsp_Ac_inv *  Qsp T")
-        print(type(zAcinvz))
-        #x0 r0
-        #ayano
-        #b is rhs
-        #x_init is initial prediction
-        #mult_precond is a function for multiplying preconditioner
         x = x_init.copy()
         ax = self.multiply_A_sparse(x_init)
         res = self.norm(ax-b)
@@ -939,70 +906,6 @@ class ConjugateGradientSparse:
         mult_precond = lambda x: mult_precond_ldlt(x)
         x_sol, res_arr = self.pcg_normal(x_init,b_iter,mult_precond,max_it,tol,verbose)
         return x_sol, res_arr
-
-    
-    
-    #LDLT -- old
-    """
-    def forward_subs(self,L,b):
-        y=[]
-        for i in range(len(b)):
-            y.append(b[i])
-            for j in range(i):
-                y[i]=y[i]-(L[i,j]*y[j])
-            if(L[i,i]!=0):    
-                y[i]=y[i]/L[i,i]
-        return y
-
-    def back_subs(self,U,y):
-        x=np.zeros_like(y)
-        for i in range(len(x),0,-1):
-            if(U[i-1,i-1]!=0):
-                x[i-1]=(y[i-1]-np.dot(U[i-1,i:],x[i:]))/U[i-1,i-1]
-        return x
-
-    def ldlt(self,A):
-        m,n = A.shape                    
-        if m!=n:           
-                quit()            
-        L = np.matrix(np.zeros((n,n)))
-        D = np.matrix(np.zeros((n,n)))                                  
-        D[0,0] = A[0][0];                                                        
-        L[0,0] = 1.0;                  
-        A1=A@A                                                                                                           
-        for i in range(1,n):
-            for j in range(0,i):     
-                if abs(A[i,j])<1e-14 and abs(A1[i,j]) < 1e-14: 
-                    continue          
-                lld = A[i,j]           
-                for k in range(j):           
-                    lld -= L[i,k]*L[j,k]*D[k,k]
-                if(D[j,j]!=0):   
-                    L[i,j] = (1.0/D[j,j])*lld
-            #i == k                                            
-            ld = A[i,i];                                           
-            for k in range(i):              
-                ld -= L[i,k]*L[i,k]*D[k,k]          
-            D[i,i] = ld;
-            L[i,i] = 1.0;                   
-        return L,D  
-    
-    def ldlt_pcg(self, b, max_it = 100, tol = 1.0e-15,verbose = False):
-        res_arr = []                   
-        x_sol = np.zeros(b.shape)
-        b_iter = b.copy()
-        x_init = np.zeros(b.shape)
-        L,D = self.ldlt(self.A)
-        U = D@L.T
-        def mult_precond_ldlt(x):                                                       
-            y_inter=self.forward_subs(L,x)
-            y=self.back_subs(U,y_inter) 
-            return y                 
-        mult_precond = lambda x: mult_precond_ldlt(x)
-        x_sor, res_arr = self.pcg_normal(x_init,b_iter,mult_precond,max_it,tol,verbose)
-        return x_sol, res_arr
-    """
-    
     
     def gauss_seidel(self, b, x, max_iterations, tolerance, verbose):
         #x is the initial condition
@@ -1022,14 +925,6 @@ class ConjugateGradientSparse:
             for i in range(self.A.shape[0]):
                 if self.A[i,i] > self.machine_tol:    
                     x[i] = (b[i] - np.dot(self.A[i,:i], x[:i]) - np.dot(self.A[i,(i+1):], x_old[(i+1):])) / self.A[i ,i]
-                
-            #Stop condition 
-            #LnormInf corresponds to the absolute value of the greatest element of the vector.
-            
-            #LnormInf = max(abs((x - x_old)))/max(abs(x_old))
-            #print ("The L infinity norm in iteration", iter1,"is:", LnormInf)
-            #if  LnormInf < tolerance:
-            #    break
         return x, res_arr
 
 
@@ -1098,17 +993,12 @@ class ConjugateGradientSparse:
             if fluid == False:
               q = model_predict(r_normalized)
             else:
-              #print("calling Fluidnet")
               q = model_predict(r)
-            #q = q/norm_q       
             t1 = time.time()
             print('Cal time:{}'.format(t1-t0))
-            #q = AMG(r/norm_r, 1 V-cycle)
             q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            #norm_q = self.norm(q) 
-            #print(norm_q)
             Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
+            Ap1 = self.multiply_A(q) 
             p0 = p1.copy()
             p1 = q.copy()
             alpha0 = alpha1
@@ -1158,13 +1048,8 @@ class ConjugateGradientSparse:
             if fluid == False:
               q = model_predict(r_normalized)
             else:
-              #print("calling Fluidnet")
               q = model_predict(r)
-            #q = q/norm_q       
-            #q = AMG(r/norm_r, 1 V-cycle)
             q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            #norm_q = self.norm(q) 
-            #print(norm_q)
             Ap0 = Ap1.copy()
             Ap1 = self.multiply_A(q) #!!!!
             p0 = p1.copy()
@@ -1182,11 +1067,9 @@ class ConjugateGradientSparse:
                 print(i+1,norm_r)
             if norm_r < tol:
                 print("DCDM converged in ", i+1, " iterations to residual ",norm_r)
-                #print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
                 return x_sol, res_arr
             
         print("DCDM converged in ", max_it, "(maximum iteration) iterations to residual ",norm_r)
-        #print("Real norm = ",self.norm(b-self.multiply_A(x_sol)))
         return x_sol, res_arr    
 
 
@@ -1214,16 +1097,7 @@ class ConjugateGradientSparse:
         x_sol = x_init.copy()
         for i in range(max_it):
             r_normalized = r/norm_r
-            #if fluid == False:
             q = model_predict(r_normalized)
-            #else:
-            #print("calling Fluidnet")
-            #q = model_predict(r)
-            #q = q/norm_q       
-            #q = AMG(r/norm_r, 1 V-cycle)
-            #q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            #norm_q = self.norm(q) 
-            #print(norm_q)
             Ap0 = Ap1.copy()
             Ap1 = self.multiply_A(q) #!!!!
             p0 = p1.copy()
@@ -1270,12 +1144,9 @@ class ConjugateGradientSparse:
         
         x_sol = x_init.copy()
         for i in range(max_it):
-            #r_normalized = r/norm_r
             q = model_predict(r/norm_r)
-            #q = r/norm_r
             for j in range(k):
                 q = q - P_temp[j]*self.dot(q, AP_temp[j])/alphas[j]
-            #q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
             if output_search_directions:
                 P_memory[i] = q.copy()
             
@@ -1283,12 +1154,9 @@ class ConjugateGradientSparse:
                 ii = i%k
             else:
                 ii=0
-
             P_temp[ii]=q.copy()
             AP_temp[ii] = self.multiply_A(q)
             alphas[ii] = self.dot(q, AP_temp[ii])
-                
-            
             beta = self.dot(q,r)
             x_sol = x_sol + q*beta/alphas[ii]
             if true_norm_calculation:
@@ -1314,588 +1182,13 @@ class ConjugateGradientSparse:
         else:
             return x_sol,res_arr
 
-    def cg_on_ML_generated_subspace_test5(self, b, x_init, model_predict, max_it=100,tol=1e-10,verbose=True):
-        dim2 =len(b)
-        print("sum b ", sum(b))
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        zero_rows = self.get_zero_rows()
-        zero_eigvec = np.ones([self.n])
-        zero_eigvec[zero_rows] = 0.0
-        zero_eigvec = zero_eigvec/self.norm(zero_eigvec)
-        
-        x_sol = x_init.copy()
-        for i in range(max_it):
-            q = model_predict(r/norm_r)
-            q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            #r = r - Ap1*beta/alpha1
-            r = b - self.multiply_A(x_sol)
-            r[zero_rows] = 0.0
-            r = r - zero_eigvec*self.dot(r, zero_eigvec)            
-            norm_r = self.norm(r)
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        print("Real norm = ",self.norm(b-self.multiply_A(x_sol)))
-        return x_sol,res_arr   
-        
-    def cg_on_ML_generated_subspace_test4(self, b, x_init, model_predict, max_it=100,tol=1e-10,verbose=True, zero_vectors = []):
-        dim2 =len(b)
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        zero_rows = self.get_zero_rows()
-        x_sol = x_init.copy()
-        for i in range(max_it):
-            q = model_predict(r/norm_r)
-            q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            r = r - Ap1*beta/alpha1
-            r = b - self.multiply_A(x_sol)
-            
-            r[zero_rows] = 0.0
-            # zero_rows = [2,3,10]
-            # [1 1 0 0 1 1 1 1 1 1 1 0 1 1]
-            for j in range(len(zero_vectors)):
-                r = r - zero_vectors[j]*np.dot(zero_vectors[j],r)
-            norm_r = self.norm(r)
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        print("Real norm = ",self.norm(b-self.multiply_A(x_sol)))
-        return x_sol,res_arr   
-
-    def cg_on_ML_generated_subspace_test3(self, b, x_init, model_predict, max_it=100,tol=1e-10,verbose=True):
-        #CG actual generalized
-        dim2 =len(b)
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        for i in range(max_it):
-            #r_normalized = r/norm_r
-            q = model_predict(r/norm_r)
-            
-            r0 = r/norm_r
-            q0 = q/self.norm(q)
-            Aq0 = self.multiply_A_sparse(q0)
-            print("norm = ",self.norm(r0 - self.dot(q0,r0)*Aq0/self.dot(q0, Aq0)))
-
-            rand_vec_x = np.random.normal(0,1, [dim2])
-            b_rand = self.multiply_A_sparse(rand_vec_x)
-            norm_b = np.linalg.norm(b_rand)
-            c0 = 0.1
-            b_rand = c0*b_rand/norm_b
-            rand_vec_x = c0*rand_vec_x/norm_b
-            
-            ml_input = r/norm_r + b_rand
-            ml_input_norm = self.norm(ml_input)
-            q = model_predict(ml_input/ml_input_norm) - rand_vec_x/ml_input_norm
-            #q = x_sol-rand_vec_x
-            
-            #q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            #r = r - Ap1*beta/alpha1
-            r = b - self.multiply_A(x_sol)
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
-                return x_sol,res_arr
-
-    def cg_on_ML_generated_subspace_test2(self, b, x_init, model_predict, max_it=100,tol=1e-10,verbose=True):
-        #CG actual generalized
-        dim2 =len(b)
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        for i in range(max_it):
-            r_dist = hf.create_plot_bar_arr(r,8)
-            r_dist = r_dist/self.norm(r_dist)
-            print("r_dist = ", r_dist)
-            #r_normalized = r/norm_r
-            q = model_predict(r/norm_r)
-            q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            #r = r - Ap1*beta/alpha1
-            r = b - self.multiply_A(x_sol)
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        print("Real norm = ",self.norm(b-self.multiply_A(x_sol)))
-        return x_sol,res_arr    
-    
-    def cg_on_ML_generated_subspace_test1(self, b, x_init, model_predict, max_it=100,tol=1e-10,verbose=True):
-        dim2 =len(b)
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        alpha0 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        for i in range(max_it):
-            p0 = model_predict(r/norm_r)
-            p0 = p0/self.norm(p0)
-            Ap0 = self.multiply_A(p0) #!!!!
-            alpha0 = self.dot(r,p0)/self.dot(p0, Ap0)
-            print("alpha0 = ",alpha0)
-            #beta = self.dot(p1,r)
-            x_sol = x_sol + p0*alpha0
-            r = r - alpha0*Ap0
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        print("Actual norm = ",self.norm(b-self.multiply_A(x_sol)))
-        return x_sol,res_arr    
-    
-    def cg_on_ML_generated_subspace_with_timing(self, b, x_init, model_predict, max_it=100,tol=1e-10,verbose=True):
-        dim2 =len(b)
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        time_predict=0
-        for i in range(max_it):
-            #r_normalized = r/norm_r
-            t0 = time.time()
-            q = model_predict(r/norm_r)
-            print(type(q),type(q[0]))
-            #print("q[0:10] = ",q[0:10])
-            #print("max(q) = ", max(q))
-            #print("norm(q) = ", self.norm(q))
-            t1 = int(1000*(time.time()-t0))
-            time_predict = time_predict +  t1
-            print("time predict at i = ",i, " is ",t1," ms")
-            #r_tf = tf.convert_to_tensor(r_normalized.reshape([1,dim,dim,1]),dtype=tf.float32)
-            #q = ml_model.predict(r_tf)[0,:,:,:].reshape([dim2]) #first_residual
-            q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            #r = r - Ap1*beta/alpha1
-            r = b-self.multiply_A(x_sol)
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                return x_sol,res_arr,time_predict
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        return x_sol,res_arr, time_predict
-    
-
-
-
-    def cg_on_ML_generated_subspace_multi_rhs(self, bs, x_inits, model_predict, max_it=100,tol=1e-10,verbose=True):
-        #dim2 = bs.shape[1]
-        n = bs.shape[0]
-        x_sols = np.zeros(bs.shape)
-        res_arr = np.zeros([bs.shape[0],max_it+1])
-        p0 = np.zeros(bs.shape)
-        p1 = np.zeros(bs.shape)
-        Ap0 = np.zeros(bs.shape)
-        Ap1 = np.zeros(bs.shape)
-        alpha0s = np.ones([n])
-        alpha1s = np.ones([n])
-        rs = bs.copy() - self.multiply_A(x_inits.transpose()).transpose()
-        norms_r = self.multi_norm(rs)
-        res_arr[:,0] = norms_r 
-        if verbose:
-            print("Initial residuals")
-            for i in range(n):
-                print("   "+str(i)+" -> "+str(norms_r[i]))
-        """
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        """
-        
-        x_sols = x_inits.copy()
-        
-        for i in range(max_it):
-            #r_normalized = r/norm_r
-            rs_normalized = self.multi_normalize(rs)
-            q = model_predict(rs_normalized)
-            #r_tf = tf.convert_to_tensor(r_normalized.reshape([1,dim,dim,1]),dtype=tf.float32)
-            #q = ml_model.predict(r_tf)[0,:,:,:].reshape([dim2]) #first_residual
-            
-            #this part can be faster:
-            qAp1 = self.multi_dot(q, Ap1)
-            qAp0 = self.multi_dot(q, Ap0)
-            for j in range(n):
-                q[j] = q[j]-p1[j]*qAp1[j]/alpha1s[j] - p0[j]*qAp0[j]/alpha0s[j]
-            #q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q.transpose()).transpose() #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0s = alpha1s.copy()
-            alpha1s = self.multi_dot(p1, Ap1)
-            beta = self.multi_dot(p1,rs)
-            for j in range(n):
-                x_sols[j] = x_sols[j] + p1[j]*beta[j]/alpha1s[j]            
-                rs[j] = rs[j] - Ap1[j]*beta[j]/alpha1s[j]
-            norms_r = self.multi_norm(rs)           
-            #res_arr = res_arr + [norm_r]
-            res_arr[:,i+1] = norms_r 
-            if verbose:
-                print("residuals at it ",i+1)
-                for j in range(n):
-                    print("   "+str(j)+" -> "+str(norms_r[j]))
-            
-            if max(norms_r) < tol:
-                #print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                return x_sols,res_arr
-            
-            
-        #print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norms_r)
-        return x_sols,res_arr    
-
-
-    def cg_on_ML_generated_subspace_old(self, b, x_init, ml_model,max_it=100,tol=1e-10,verbose=True):
-        dim2 =len(b)
-        dim = int(np.sqrt(dim2))
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        for i in range(max_it):
-            r_normalized = r/norm_r
-            r_tf = tf.convert_to_tensor(r_normalized.reshape([1,dim,dim,1]),dtype=tf.float32)
-            q = ml_model.predict(r_tf)[0,:,:,:].reshape([dim2]) #first_residual
-            q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            r = r - Ap1*beta/alpha1
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        return x_sol,res_arr
-
-
-    def restarted_ML_prediction(self, b, x_init, model_predict,max_it=100,tol=1e-10,verbose=True):
-        dim2 =len(b)
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        #P = np.zeros([max_it,dim2])
-        for i in range(max_it):
-            #r_normalized = r/norm_r
-            #r_tf = tf.convert_to_tensor(r_normalized.reshape([1,dim,dim,1]),dtype=tf.float32)
-            q = model_predict(r/norm_r)
-            #q = ml_model.predict(r_tf)[0,:,:,:].reshape([dim2]) #first_residual
-            #q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            #Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            #p0 = p1.copy()
-            p1 = q.copy()
-            #P[i] = p1.copy()
-            #P[i] = P[i]/np.linalg.norm(P[i])
-            #alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            r = r - Ap1*beta/alpha1
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        return x_sol,res_arr
-
-    def cg_on_ML_generated_subspace_with_zero_vectors(self, b, x_init, ml_model,zero_vectors, max_it=100,tol=1e-10,verbose=True):
-        dim2 =len(b)
-        dim = int(np.sqrt(dim2))
-        x_sol = np.zeros(b.shape)
-        res_arr = []
-        p0 = np.zeros(dim2)
-        p1 = np.zeros(dim2)
-        Ap0 = np.zeros(dim2)
-        Ap1 = np.zeros(dim2)
-        alpha0 = 1.0
-        alpha1 = 1.0
-        r = b - self.multiply_A(x_init)
-        norm_r = self.norm(r)
-        res_arr = [norm_r]
-        if verbose:
-            print("Initial residual =",norm_r)
-        if norm_r<tol:
-            print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-            return x_init, res_arr
-        
-        x_sol = x_init.copy()
-        #P = np.zeros([max_it,dim2])
-        for i in range(max_it):
-            r_normalized = r/norm_r
-            r_tf = tf.convert_to_tensor(r_normalized.reshape([1,dim,dim,1]),dtype=tf.float32)
-            q = ml_model.predict(r_tf)[0,:,:,:].reshape([dim2]) #first_residual
-            q = q - p1*self.dot(q, Ap1)/alpha1 - p0*self.dot(q, Ap0)/alpha0
-            q = q/self.norm(q)
-            for j in range(len(zero_vectors)):
-                q = q - zero_vectors[j]*np.dot(zero_vectors[j],q)
-            Ap0 = Ap1.copy()
-            Ap1 = self.multiply_A(q) #!!!!
-            p0 = p1.copy()
-            p1 = q.copy()
-            #P[i] = p1.copy()
-            #P[i] = P[i]/np.linalg.norm(P[i])
-            alpha0 = alpha1
-            alpha1 = self.dot(p1, Ap1)
-            beta = self.dot(p1,r)
-            x_sol = x_sol + p1*beta/alpha1
-            r = r - Ap1*beta/alpha1
-            norm_r = self.norm(r)           
-            res_arr = res_arr + [norm_r]
-            if verbose:
-                print(i+1,norm_r)
-            if norm_r < tol:
-                print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-                return x_sol,res_arr
-            
-        print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-        return x_sol,res_arr
-            
-    def cg_on_ML_generated_subspace_V2(self, b, x_init, ml_model,max_it=100,tol=1e-10,verbose=True):
-       b1 = b.copy()
-       dim2 =len(b)
-       dim = int(np.sqrt(dim2))
-       x_sol = np.zeros(b.shape)
-       res_arr = []
-       p0 = np.zeros(dim2)
-       p1 = np.zeros(dim2)
-       Ap0 = np.zeros(dim2)
-       Ap1 = np.zeros(dim2)
-       alpha0 = 1.0
-       alpha1 = 1.0
-       aa0 = 1
-       aa1 = 1
-       r = b - self.multiply_A(x_init)
-       norm_r = self.norm(r)
-       res_arr = [norm_r]
-       if verbose:
-           print("Initial residual =",norm_r)
-       if norm_r<tol:
-           print("cg_on_ML_generated_subspace converged in 0 iterations to residual ",norm_r)
-           return x_init, res_arr
-       
-       x_sol = x_init.copy()
-       
-       for i in range(max_it):           
-           r_normalized = r/norm_r
-           r_tf = tf.convert_to_tensor(r_normalized.reshape([1,dim,dim,1]),dtype=tf.float32)
-           q = ml_model.predict(r_tf)[0,:,:,:].reshape([dim2]) #first_residual
-           q = q - p1*self.dot(q, p1)/aa1 - p0*self.dot(q, p0)/aa0
-           Ap0 = Ap1.copy()
-           Ap1 = self.multiply_A(q) #!!!!
-           p0 = p1.copy()
-           p1 = q.copy()
-           alpha0 = alpha1
-           alpha1 = self.dot(p1, Ap1)
-           aa0 = aa1
-           aa1 = self.dot(p1, p1)
-           beta = self.dot(p1,r)
-           x_sol = x_sol + p1*beta/alpha1
-           r = r - Ap1*beta/alpha1
-           norm_r = self.norm(r)           
-           res_arr = res_arr + [norm_r]
-           if verbose:
-               print(i+1,norm_r)
-           if norm_r < tol:
-               print("cg_on_ML_generated_subspace converged in ", i+1, " iterations to residual ",norm_r)
-               return x_sol,res_arr
-           
-       print("cg_on_ML_generated_subspace converged in ", max_it, " iterations to residual ",norm_r)
-       return x_sol,res_arr
+         
+  
+  
    
-    
+   
+
+
+   
+           
+   
