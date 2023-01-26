@@ -62,10 +62,21 @@ Note that dataset are located at `../icml2023data` if users follow the steps in 
 python3 test_all_cg.py --help
 ```
 
-
 ## Training
 ### Dataset
-We generated our dataset using Ritz vectors, and the dataset generating code is at `src/GeneratingData.py`.
+We generated our dataset using Ritz vectors, and the dataset generating code is at `src/GeneratingData.py`. Note that our dataset for training for each dimention, **[here](https://www.dropbox.com/s/dlhvuyub87i9cyl/icml2023data.tar.gz?dl=0)** . Download to the ```project source directory``` and extract all data files.
+```
+tar -zxvf datasets.tar.gz
+cd icml2023data
+tar -zxvf datasets.tar.gz
+```
+```
+.
+└── (Project Source Directory)
+    ├── src
+    └── icml2023data
+    └── <span style="color: red; ">datasets</span>
+```
 
 
 ### Training model
