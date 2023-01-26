@@ -1,13 +1,9 @@
-
 import numpy as np
 import tensorflow as tf
 import scipy
-import QR
 import time
-#import os
 import scipy.sparse as sparse
 import scipy.sparse.linalg
-import helper_functions as hf
 import gc
 import numpy.linalg as LA
 from scipy.sparse.linalg import eigs
@@ -15,7 +11,6 @@ from scipy.sparse.linalg import inv
 from scipy.sparse import diags
 from scipy.sparse import identity
 from scipy.sparse import csr_matrix
-#from copy import copy
 
 class ConjugateGradientSparse:
     def __init__(self, A_sparse):
@@ -144,7 +139,6 @@ class ConjugateGradientSparse:
             y = y + qTx*(1/lambda_[i] - 1.0)*Q[i]
         return y
 
-    #ayano
     def Q_Ac_Qt_y(self,x,Q,lambda_):
         y = np.copy(x)
         Q_s = Q.astype(np.float32)
