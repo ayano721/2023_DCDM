@@ -84,7 +84,7 @@ You can also generate the dataset by yourself with `src/datasetcreate.py`.
 cd src/
 python3 datasetcreate.py --dataset_dir <dataset_path> --output_dir <directory_to_save_the_newly_created_dataset>
 ```
-After creating the new dataset, if you like to use it for the training, you should change the path accordingly.
+After creating the new dataset, if you like to use it for the training, you should change the path(foldername) in line 158 and 160 in train.py
 
 ### Training model
 Pre-trained models can be found `icml2023data/trained_models`. If the you want to generate dataset by yourself, you can run the following commands:
