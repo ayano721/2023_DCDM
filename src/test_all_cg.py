@@ -24,7 +24,7 @@ import helper_functions as hf
 #%% Get Arguments from parser
 parser = argparse.ArgumentParser()
 parser.add_argument("-N", "--resolution", type=int, choices=[64, 128, 256],
-                    help="N or resolution of test", default = 256 )
+                    help="N or resolution of test", default = 64 )
 parser.add_argument("-k", "--trained_model_type", type=int, choices=[64, 128],
                     help="which model to test", default=128)
 parser.add_argument("-f", "--float_type", type=int, choices=[16, 32],
@@ -39,8 +39,8 @@ parser.add_argument("-tol","--tolerance", type=float,
                     help="tolerance for both DGCM and CG algorithm", default=1.0e-4)
 parser.add_argument("--verbose_dgcm", type=bool,
                     help="prints residuals of DGCM algorithm for each iteration", default=False)
-parser.add_argument("--dataset_dir", type=str,
-                    help="path to the dataset", default="../data")
+parser.add_argument("--dataset_dir", type=str, required=True,
+                    help="path to the dataset")
 parser.add_argument("--CUDA_VISIBLE_DEVICES", type=str,
                     help="Determines if DCDM uses GPU. Default DCDM only uses CPU.", default="")
 parser.add_argument("--num_vectors_deflated_pcg", type=int,
