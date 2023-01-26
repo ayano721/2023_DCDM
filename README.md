@@ -72,5 +72,5 @@ We generated our dataset using Ritz vectors, and the dataset generating code is 
 Pre-trained models can be found `icml2023data/trained_models`. If the you want to generate dataset by yourself, you can run the following commands:
 ```
 cd src/
-python train_N64.py [epoch number] [epoch number for saved model] [batch size] [loading data size for once] [gpu usage memory 1024*int] [GPU id]
+python train.py -N [dimention] --total_number_of_epochs [total epoch number] --epoch_each_number [epoch number for saved model] --batch_size [batch size] --loading_number [loading data size for once] --gpu_usage [gpu usage memory 1024*int]  --data_dir [data_direction]
 ```
