@@ -11,7 +11,6 @@ import time
 
 sys.path.insert(1, '../lib/')
 import conjugate_gradient as cg
-import pressure_laplacian as pl
 import helper_functions as hf
 
 import argparse
@@ -109,7 +108,7 @@ def custom_loss_function_cnn_1d_fast(y_true,y_pred):
 dim = N
 fil_num=16
 input_rhs = keras.Input(shape=(dim, dim, dim, 1))
-if N==64
+if N==64:
     first_layer = layers.Conv3D(fil_num, (3, 3, 3), activation='linear', padding='same')(input_rhs)
     la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(first_layer)
     lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
