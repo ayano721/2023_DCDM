@@ -109,31 +109,63 @@ def custom_loss_function_cnn_1d_fast(y_true,y_pred):
 dim = N
 fil_num=16
 input_rhs = keras.Input(shape=(dim, dim, dim, 1))
-first_layer = layers.Conv3D(fil_num, (3, 3, 3), activation='linear', padding='same')(input_rhs)
-la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(first_layer)
-lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
-la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(lb) + la
-lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
+if N==64
+    first_layer = layers.Conv3D(fil_num, (3, 3, 3), activation='linear', padding='same')(input_rhs)
+    la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(first_layer)
+    lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
+    la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(lb) + la
+    lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
 
-apa = layers.AveragePooling3D((2, 2,2), padding='same')(lb) 
-apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
-apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
-apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
-apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
-apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
-apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apa = layers.AveragePooling3D((2, 2,2), padding='same')(lb) 
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
 
-upa = layers.UpSampling3D((2, 2,2))(apa) + lb
-upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
-upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
-upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
-upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
+    upa = layers.UpSampling3D((2, 2, 2))(apa) + lb
+    upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
+    upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
+    upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
+    upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
 
-last_layer = layers.Dense(1, activation='linear')(upa)
+    last_layer = layers.Dense(1, activation='linear')(upa)
+
+elif N==128:
+    first_layer = layers.Conv3D(fil_num, (3, 3, 3), activation='linear', padding='same')(input_rhs)
+    la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(first_layer)
+    lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
+    la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(lb) + la
+    lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
+    la = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(lb) + la
+    lb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(la)
+
+    apa = layers.AveragePooling3D((2, 2,2), padding='same')(lb) #7
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+    apb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apa)
+    apa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(apb) + apa
+
+    upa = layers.UpSampling3D((2, 2, 2))(apa) + lb
+    upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
+    upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
+    upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
+    upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
+    upb = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upa) 
+    upa = layers.Conv3D(fil_num, (3, 3, 3), activation='relu', padding='same')(upb) + upa
+
+    last_layer = layers.Dense(1, activation='linear')(upa)
 
 model = keras.Model(input_rhs, last_layer)
 model.compile(optimizer="Adam", loss=custom_loss_function_cnn_1d_fast) 
-model.optimizer.lr = lr;
+model.optimizer.lr = lr
 model.summary()
 
 
