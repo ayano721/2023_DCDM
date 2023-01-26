@@ -65,13 +65,12 @@ python3 test_all_cg.py --help
 
 ## Training
 ### Dataset
-We placed dataset here [place of the folder]. Here, we generated this dataset by calculating Ritz vectors, so we also show our code here. [GeneratingData.py]
+We generated our dataset using Ritz vectors, and the dataset generating code is at `src/GeneratingData.py`.
 
 
 ### Training model
-We placed pre-trained models here: ```/trained_model```. We also placed the training code here.
-
+Pre-trained models can be found `icml2023data/trained_models`. If the you want to generate dataset by yourself, you can run the following commands:
 ```
-cd ThisDir/src
+cd src/
 python train_N64.py [epoch number] [epoch number for saved model] [batch size] [loading data size for once] [gpu usage memory 1024*int] [GPU id]
 ```
