@@ -710,7 +710,6 @@ class ConjugateGradientSparse:
         x_init = np.zeros(b.shape)
         Q = self.create_ritz_vectors(b_iter,num_vectors)
         lambda_ = (self.create_ritz_values(Q))
-        #x0 r0
         x = x_init.copy()
         ax = self.multiply_A_sparse(x_init)
         res = self.norm(ax-b)
@@ -723,9 +722,7 @@ class ConjugateGradientSparse:
             return [x, res_arr]
         
         mult_precond = lambda x_in_val: self.mult_diag_precond(x_in_val)
-        
-        r = b_iter #- ax(0)
-
+        r = b_iter 
         x = self.Q_Ac_Qt_y(r,Q,lambda_)  #precond z0
         ax =  self.multiply_A_sparse(x)
         
@@ -733,7 +730,6 @@ class ConjugateGradientSparse:
         z = mult_precond(r)  #precond z0
         z0 = z.copy()
         az = self.multiply_A_sparse(z0)#.astype(np.float32)
-        #new p0
         tempv = self.Q_Ac_Qt_y(az,Q,lambda_) 
         p = z0 -  tempv
         rz = np.dot(r,z)
@@ -749,6 +745,7 @@ class ConjugateGradientSparse:
             rz = np.dot(r,z)
             res = self.norm(self.multiply_A_sparse(x)-b)
             res_arr = res_arr + [res]
+            print("PCG residual = "+str(res))
             if res < tol: 
                 if verbose:
                     print("PCG residual = "+str(res))
