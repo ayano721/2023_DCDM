@@ -66,7 +66,6 @@ tri_diag[0,1]=sub_diagonal[0]
 tri_diag[num_ritz_vectors-1,num_ritz_vectors-1]=diagonal[num_ritz_vectors-1]
 tri_diag[num_ritz_vectors-1,num_ritz_vectors-2]=sub_diagonal[num_ritz_vectors-2]
 
-
 #%% 
 print("Calculating eigenvectors of the tridiagonal matrix")
 ritz_vals, Q0 = np.linalg.eigh(tri_diag)

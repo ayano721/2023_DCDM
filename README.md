@@ -64,7 +64,7 @@ python3 test_all_cg.py --help
 
 ## Training
 ### Dataset
-We generated our dataset using Ritz vectors, and the dataset generating code is at `src/GeneratingData.py`. Note that our dataset for training for each dimention, **[here](https://www.dropbox.com/s/dlhvuyub87i9cyl/icml2023data.tar.gz?dl=0)** . Download to the ```project source directory``` and extract all data files.
+We generated our dataset using Ritz vectors, and the dataset generating code is at `src/datasetcreate.py`. Note that our dataset for training for each dimention, **[here](https://www.dropbox.com/s/dlhvuyub87i9cyl/icml2023data.tar.gz?dl=0)** . Download to the ```project source directory``` and extract all data files.
 ```
 tar -zxvf datasets.tar.gz
 cd icml2023data
@@ -78,6 +78,13 @@ tar -zxvf datasets.tar.gz
     └── <span style="color: red; ">datasets</span>
 ```
 
+### Dataset Creation
+You can also generate the dataset by yourself with `src/datasetcreate.py`. 
+```
+cd src/
+python3 datasetcreate.py --dataset_dir <dataset_path> --output_dir <directory_to_save_the_newly_created_dataset>
+```
+After creating the new dataset, if you like to use it for the training, you should change the path accordingly.
 
 ### Training model
 Pre-trained models can be found `icml2023data/trained_models`. If the you want to generate dataset by yourself, you can run the following commands:
