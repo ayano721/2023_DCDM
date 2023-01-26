@@ -755,7 +755,6 @@ class ConjugateGradientSparse:
             rz = np.dot(r,z)
             res = self.norm(self.multiply_A_sparse(x)-b)
             res_arr = res_arr + [res]
-            print("PCG residual = "+str(res)+ ", Ite" + str(it))
             if res < tol: 
                 if verbose:
                     print("PCG residual = "+str(res))
