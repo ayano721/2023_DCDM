@@ -1563,10 +1563,6 @@ class ConjugateGradientSparse:
         Q = self.create_ritz_vectors(b_iter,num_vectors)
         lambda_ = (self.create_ritz_values(Q))
         #x0 r0
-        #ayano
-        #b is rhs
-        #x_init is initial prediction
-        #mult_precond is a function for multiplying preconditioner
         x = x_init.copy()
         ax = self.multiply_A_sparse(x_init)
         res = self.norm(ax-b)
@@ -1582,10 +1578,7 @@ class ConjugateGradientSparse:
         
         r = b_iter #- ax(0)
 
-        #diag_lam = np.diag(lambda_)
-        #lambda_ = LA.inv(diag_lam)
         x = self.Q_Ac_Qt_y(r,Q,lambda_)  #precond z0
-        #x = zAcinvz.dot(r)
         ax =  self.multiply_A_sparse(x)
         
         r = b_iter -  ax
@@ -1620,9 +1613,7 @@ class ConjugateGradientSparse:
                   beta = rz/rz_k
                 else: 
                   beta = 0
-                print(beta,":beta")
                 pk_1 = p.copy()
-                #p = z.copy()
                 tempv = self.Q_Ac_Qt_y(az,Q,lambda_) 
                 p = z + pk_1*beta - tempv#zAcinvz.dot(az)
                 rz_k = rz 
