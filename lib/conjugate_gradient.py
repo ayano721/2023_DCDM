@@ -197,7 +197,6 @@ class ConjugateGradient:
             y = y + qTx*(1/lambda_[i])*Q[i]
         return y
     
-    #this is incomplete, and shit.
     def mult_precond_2(self, x, mult_precond, mult_low_rank_precond):
         #multiply HPH^T
         #Assuming A=A^T
