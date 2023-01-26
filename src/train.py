@@ -8,7 +8,6 @@ import tensorflow as tf
 import gc
 import scipy.sparse as sparse
 import time
-#import matplotlib.pyplot as plt
 
 sys.path.insert(1, '../lib/')
 import conjugate_gradient as cg
@@ -58,14 +57,12 @@ gpu_usage = args.gpu_usage
 which_gpu = args.gpu_idx
 
 
-
 project_name = "3D_N"+str(N)
 project_folder_subname = os.path.basename(os.getcwd())
 print("project_folder_subname = ", project_folder_subname)
 
 project_folder_general = "../training/3D_N"+str(N)+"/"
 
-#training_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_training_loss.npy"
 
 dim2 = N**3
 lr = 1.0e-4
@@ -139,7 +136,6 @@ model.compile(optimizer="Adam", loss=custom_loss_function_cnn_1d_fast)
 model.optimizer.lr = lr;
 model.summary()
 
-#%% testing data rhs
 
 rand_vec_x = np.random.normal(0,1, [dim2])
 b_rand = CG.multiply_A_sparse(rand_vec_x)
@@ -151,7 +147,6 @@ data_folder_name = project_folder_general+"data/output3d128_smoke_sigma/"
 b_rotate = hf.get_frame_from_source(10, data_folder_name)
 
 
-#%%
 training_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_training_loss.npy"
 validation_loss_name = project_folder_general+project_folder_subname+"/"+project_name+"_validation_loss.npy"
 training_loss = []
@@ -164,7 +159,7 @@ if N == 64:
 elif N == 128:
     foldername = "../datasets/N128/b_rhs_20000_10000_ritz_vectors_newA_90_10_random_N128/"
 
-total_data_points = 10#20000
+total_data_points = 20000
 for_loading_number = round(total_data_points/loading_number)
 b_rhs = np.zeros([loading_number,dim2])
 
@@ -205,7 +200,6 @@ for i in range(1,epoch_num):
     training_loss = training_loss + [sum(validation_loss_inner)/for_loading_number]
     validation_loss = validation_loss + [sum(validation_loss_inner)/for_loading_number]
     
-    #os.system("mkdir -p "+project_folder_general+project_folder_subname+ "/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i))
     os.makedirs(name = project_folder_general+project_folder_subname+ "/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i))
     os.system("touch "+project_folder_general+project_folder_subname+ "/saved_models/"+project_name+"_json_E"+str(epoch_each_iter*i)+"/model.json")
     model_json = model.to_json()
