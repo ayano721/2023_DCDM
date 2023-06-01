@@ -1,5 +1,9 @@
 # DCDM
 
+[![](http://img.youtube.com/vi/_-kTsEN_yN0/0.jpg)](https://www.youtube.com/watch?v=_-kTsEN_yN0)
+
+
+
 
 This repository is based on the paper [under review].
 We accelerate fluid simulations by embedding a neural network in an existing solver for pressure, replacing an expensive pressure projection linked to a Poisson equation on a computational fluid grid that is usually solved with iterative methods (CG or Jacobi methods). 
