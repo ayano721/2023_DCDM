@@ -1,6 +1,7 @@
 # DCDM
 
-https://proceedings.mlr.press/v202/kaneda23a/kaneda23a.pdf
+[A Deep Conjugate Direction Method for Iteratively Solving Linear Systems](https://proceedings.mlr.press/v202/kaneda23a/kaneda23a.pdf)
+
 
 
 [![](http://img.youtube.com/vi/_-kTsEN_yN0/0.jpg)](https://www.youtube.com/watch?v=_-kTsEN_yN0)
